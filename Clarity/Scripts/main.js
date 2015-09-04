@@ -5,15 +5,12 @@ var errorLB = $("#error");
 var settingsObj;
 
 settingsBtn.click(function () {
-    getSettings();
-    mapSettings();
-});
-
-function getSettings() {
     $.get("../Settings/Get", function (data) {
         settingsObj = data;
+
+        mapSettings();
     });
-}
+});
 
 function mapSettings() {
     var tmpValue = null;
