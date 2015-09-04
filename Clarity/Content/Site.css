@@ -1,0 +1,50 @@
+﻿body {
+    margin: 0 auto;
+    font: 10pt Verdana;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+.wrapper, #settings, #error{
+    position:absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 200px;
+    background: #fff;
+}
+
+.color{
+    width:75px;
+    height:25px;
+    display:inline-block;
+}
+
+.red{background:#c0392b}
+.orange{background:#e67e22}
+.yellow{background:#f1c40f}
+.blue{background:#2980b9}
+.green{background:#2cc36b}
+.purple{background:#8e44ad}
+
+.table{width:100%}
+
+td{
+    padding:10px;
+}
+
+input[type="number"]{
+    text-align:center;
+    max-width:80px;
+}
