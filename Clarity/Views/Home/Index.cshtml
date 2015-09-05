@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="wrapper">
+    <a href="#" id="settingsBtn" class="btn btn-primary btn-lg btn-block">Settings</a>
+    <a href="#" id="dataBtn" class="btn btn-primary btn-lg btn-block">Data</a>
+    <a href="#" id="startBtn" class="btn btn-success btn-lg btn-block">Start</a>
+</div>
+
+<div id="settings" style="display:none">
+    <table>
+        <tr>
+            <td>Category:</td>
+            <td>
+                <select id="category">
+                    <option value="1" selected>Animals</option>
+                    <option value="2">Real Estate</option>
+                    <option value="3">Sports</option>
+                    <option value="4">Nature</option>
+                    <option value="5">Funny Quotes</option>
+                    <option value="6">Celebrities</option>
+                    <option value="7">Food</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Clarity Reward:
+            </td>
+            <td>
+                <input id="clarity-reward" type="number" min="-100" max="100" value="0.05" />
+            </td>
+        </tr>
+        <tr>
+            <td>Number of Trials:</td>
+            <td>
+                <input id="num-trials" type="number" min="1" max="100" value="4" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Trial Duration:
+            </td>
+            <td>
+                <input id="trial-duration" type="number" min="0" value="60" /> seconds
+            </td>
+        </tr>
+        </table>
+    <table>
+        <tr>
+            <td colspan="3">Components</td>
+        </tr>
+        <tr>
+            <td>1.</td>
+          <td>
+            Clarity: <input id="clarity-1" type="number" min="-100" max="100" value="0" />
+            </td>
+            <td>
+                <span class="color red"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>2.</td>
+            <td>
+                Clarity: <input id="clarity-2" type="number" min="-100" max="100" value="0.01" />
+            </td>
+            <td>
+                <span class="color orange"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>3.</td>
+            <td>
+                Clarity: <input id="clarity-3" type="number" min="-100" max="100" value="0.05" />
+            </td>
+            <td>
+                <span class="color yellow"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>4.</td>
+            <td>
+                Clarity: <input id="clarity-4" type="number" min="-100" max="100" value="0.10" />
+            </td>
+            <td>
+                <span class="color green"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>5.</td>
+            <td>
+                Clarity: <input id="clarity-5" type="number" min="-100" max="100" value="0.25" />
+            </td>
+            <td>
+                <span class="color blue"></span>
+            </td>
+        </tr>
+        <tr>
+            <td>6.</td>
+            <td>
+                Clarity: <input id="clarity-6" type="number" min="-100" max="100" value="1" />
+            </td>
+            <td>
+                <span class="color purple"></span>
+            </td>
+        </tr>
+    </table>
+    <a href="#" id="saveBtn" class="btn btn-success btn-block btn-lg">OK</a>
+</div>
+
+<div id="error" style="display:none">
+</div>
