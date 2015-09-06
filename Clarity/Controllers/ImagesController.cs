@@ -22,7 +22,7 @@ namespace Clarity.Controllers
             {
                 if (catID <= 0) catID = (int)Constants.Folders.Animals;
 
-                filePath = "~/Images/" + Enum.GetName(typeof(Constants.Folders), catID);
+                filePath = Server.MapPath(Constants.filePathImages) + "/" + Enum.GetName(typeof(Constants.Folders), catID);
 
                 imageFiles = Directory.GetFiles(filePath);
 

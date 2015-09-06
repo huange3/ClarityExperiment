@@ -14,7 +14,7 @@ namespace Clarity.Controllers
         public void Load()
         {
             string currJSON = "";
-            string filePath = Constants.filePathSettings;
+            string filePath = Server.MapPath(Constants.filePathSettings);
 
             try
             {
