@@ -2,6 +2,7 @@
 var settingsBtn = $("#settings-btn");
 var saveBtn = $("#save-btn");
 var cancelBtn = $("#cancel-btn");
+var dataBtn = $("#data-btn");
 var startExpBtn = $("#start-exp-btn");
 var startTrialBtn = $("#start-trial-btn");
 var settings = $("#settings");
@@ -52,7 +53,8 @@ var buttonIntervalCnt = 0;
 var currColorVal = "";
 var style = {
     "opacity": "1",
-    "-webkit-filter": "blur(" + currClarityVal + "px)"
+    "-webkit-filter": "blur(" + currClarityVal + "px)",
+    "filter": "blur(" + currClarityVal + "px)"
 };
 
 // constants
@@ -92,6 +94,10 @@ startTrialBtn.click(function () {
     instructions.toggleClass("show");
     trial.show();
     runTrial();
+});
+
+dataBtn.click(function () {
+    loadData();
 });
 
 $(document).keyup(function (e) {
@@ -367,6 +373,7 @@ function increaseClarity() {
 
     style["opacity"] = 1;
     style["-webkit-filter"] = "blur(" + currClarityVal + "px)";
+    style["filter"] = "blur(" + currClarityVal + "px)";
     mainImage.css(style);
 }
 
@@ -379,6 +386,7 @@ function decreaseClarity() {
     }
 
     style["-webkit-filter"] = "blur(" + currClarityVal + "px)";
+    style["filter"] = "blur(" + currClarityVal + "px)";
     mainImage.css(style);
 }
 
@@ -401,7 +409,15 @@ function saveData() {
     var currJSON = JSON.stringify(dataLog);
 
     $.post("../Data/Save", currJSON, function (data) {
-        if (data != null) raiseNotify(data + "<p>Experiment completed! Thank you for participating!<p>");
+        if (data != null) raiseNotify(data + "<p>Experiment complete! Thank you for participating!<p>");
+    });
+}
+
+function loadData() {
+    raiseSpinner();
+
+    $.get("../Data/Load", function (data) {
+
     });
 }
 

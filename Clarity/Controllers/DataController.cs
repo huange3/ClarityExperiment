@@ -15,6 +15,23 @@ namespace Clarity.Controllers
     public class DataController : Controller
     {
         // GET: Data
+        public void Load()
+        {
+            var currJSON = "";
+            var filePath = Server.MapPath(Constants.filePathData);
+
+            try
+            {
+
+            }
+            catch (Exception e)
+            {
+                currJSON = "{error: \"Error occurred while loading data: " + e.Message + "}";
+                Response.ContentType = "application/json";
+                Response.Write(currJSON);             
+            }
+        }
+
         // save the JSON to App_Data
         // then deserialize the JSON into a delimited file and save it to App_Data
         public void Save()

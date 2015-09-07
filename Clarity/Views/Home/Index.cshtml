@@ -5,8 +5,8 @@
 
 <div class="wrapper">
     <a href="#" id="settings-btn" class="btn blue">Settings</a>
-    <a href="#" id="data-btn" class="btn blue">Data</a>
-    <a href="#" id="start-exp-btn" class="btn green">Start</a>
+    <a href="#" id="data-btn" class="btn blue">Download Data</a>
+    <a href="#" id="start-exp-btn" class="btn green">Start Experiment</a>
 </div>
 
 <div id="settings" class="popup">
@@ -30,7 +30,7 @@
                 Clarity Reward:
             </td>
             <td>
-                <input id="clarity-reward" type="number" min="-100" max="100" value="0.05" />
+                <input id="clarity-reward" type="number" min="-100" max="100" value="0.05" step="0.01"/>
             </td>
         </tr>
         <tr>
@@ -48,14 +48,12 @@
             </td>
         </tr>
     </table>
+    <div class="t-center"><p>Components</p></div>
     <table>
-        <tr>
-            <td colspan="3" class="t-center">Components</td>
-        </tr>
         <tr>
             <td>1.</td>
             <td>
-                Clarity: <input id="clarity-1" type="number" min="-100" max="100" value="0" />
+                Clarity: <input id="clarity-1" type="number" min="-100" max="100" value="0" step="0.01"/>
             </td>
             <td>
                 <span class="color red"></span>
@@ -64,7 +62,7 @@
         <tr>
             <td>2.</td>
             <td>
-                Clarity: <input id="clarity-2" type="number" min="-100" max="100" value="0.01" />
+                Clarity: <input id="clarity-2" type="number" min="-100" max="100" value="0.01" step="0.01"/>
             </td>
             <td>
                 <span class="color orange"></span>
@@ -73,7 +71,7 @@
         <tr>
             <td>3.</td>
             <td>
-                Clarity: <input id="clarity-3" type="number" min="-100" max="100" value="0.05" />
+                Clarity: <input id="clarity-3" type="number" min="-100" max="100" value="0.05" step="0.01"/>
             </td>
             <td>
                 <span class="color yellow"></span>
@@ -82,7 +80,7 @@
         <tr>
             <td>4.</td>
             <td>
-                Clarity: <input id="clarity-4" type="number" min="-100" max="100" value="0.10" />
+                Clarity: <input id="clarity-4" type="number" min="-100" max="100" value="0.10" step="0.01"/>
             </td>
             <td>
                 <span class="color green"></span>
@@ -91,7 +89,7 @@
         <tr>
             <td>5.</td>
             <td>
-                Clarity: <input id="clarity-5" type="number" min="-100" max="100" value="0.25" />
+                Clarity: <input id="clarity-5" type="number" min="-100" max="100" value="0.25" step="0.01"/>
             </td>
             <td>
                 <span class="color blue"></span>
@@ -100,7 +98,7 @@
         <tr>
             <td>6.</td>
             <td>
-                Clarity: <input id="clarity-6" type="number" min="-100" max="100" value="1" />
+                Clarity: <input id="clarity-6" type="number" min="-100" max="100" value="1" step="0.01"/>
             </td>
             <td>
                 <span class="color purple"></span>

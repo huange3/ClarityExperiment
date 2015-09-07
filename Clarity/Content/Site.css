@@ -26,7 +26,7 @@ input[type="number"]{text-align:center;max-width:80px}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#E4E4E4;visibility:hidden;opacity:0;transition:all .3s;z-index:800}
 .btn{display:block;padding:15px;text-align:center;color:#fff;text-decoration:none;margin-top:10px}
 #trial-body{position:absolute;top:0;left:0;height:100%;width:100%;background:#fff;text-align:center}
-#main-image{max-height:900px;width:auto}
+#main-image{height:100%;width:auto}
 #top,#bottom,#left,#right{background:#2c3e50;position:fixed}
 #left,#right{top:0;bottom:0;width:75px}
 #left{left:0}
