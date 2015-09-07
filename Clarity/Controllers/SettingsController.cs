@@ -13,8 +13,8 @@ namespace Clarity.Controllers
         // GET: Settings
         public void Load()
         {
-            string currJSON = "";
-            string filePath = Server.MapPath(Constants.filePathSettings);
+            var currJSON = "";
+            var filePath = Server.MapPath(Constants.filePathSettings);
 
             try
             {

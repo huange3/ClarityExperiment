@@ -9,6 +9,7 @@ namespace Clarity.Shared
     {
         public const string filePathSettings = "../Shared/settings.json";
         public const string filePathImages = "../Images";
+        public const string filePathData = "../App_Data";
 
         public enum Folders
         {

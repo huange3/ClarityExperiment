@@ -15,37 +15,50 @@ var categories = $("#category");
 var clarityReward = $("#clarity-reward");
 var numTrials = $("#num-trials");
 var trialDuration = $("#trial-duration");
-var buttonRate = $("#button-rate");
-var buttonCount = $("#button-count");
+var buttonRateLB = $("#button-rate");
+var buttonCountLB = $("#button-count");
 var secondsLB = $("#seconds");
+var border = $("#border");
+var loadingLB = $(".loading");
 
 // global variables
 var settingsObj = null;
 var responseObj = null;
+
 var trials = [];
 var trialComps = [];
-var dataLog = [];
 var imageList = [];
+var dataLog = {
+    "summary": "",
+    "trials": []
+};
+
+var participantID = "";
 var categoryID = 0;
 var clarityRewardVal = 0;
 var numTrialsVal = 0;
-var trialDurationVal = 60;
+var trialDurationVal = 0;
 var buttonACnt = 0;
 var buttonNCnt = 0;
 var buttonARate = 0.0;
 var buttonNRate = 0.0;
+
 var timer = null;
 var timeRemaining = 0;
 var isTrial = false;
 var currClarityVal = 100;
-var clarityPunish = 0;
+var clarityPunishVal = 0;
 var buttonIntervalCnt = 0;
+var currColorVal = "";
 var style = {
     "opacity": "1",
     "-webkit-filter": "blur(" + currClarityVal + "px)"
 };
 
+// constants
 const componentsCnt = 6;
+
+// BEGIN - Event handling of DOM elements ========================
 
 loadSettings();
 loadImages();
@@ -78,13 +91,14 @@ startExpBtn.click(function () {
 startTrialBtn.click(function () {
     instructions.toggleClass("show");
     trial.show();
-    startExperiment();
+    runTrial();
 });
 
 $(document).keyup(function (e) {
     if (isTrial) {
         if (e.which == 65) {
             buttonACnt++;
+            //buttonCountLB.text(buttonACnt);
             buttonIntervalCnt++;
             increaseClarity();
         }
@@ -93,21 +107,24 @@ $(document).keyup(function (e) {
             buttonNCnt++;
             changeImage();
         }
-    }   
+    }
 });
+
+// END - Event handling of DOM elements ========================
+
+// BEGIN - Functions ===========================================
 
 function loadSettings() {
     $.get("../Settings/Load", function (data) {
         if (data != null) settingsObj = data;
         //console.log(settingsObj);
-        mapSettings();   
+        mapSettings();
     });
 }
 
 function loadImages() {
     $.get("../Images/Load", "catID=" + categoryID, function (data) {
         if (data != null) imageList = data;
-
         //console.log(imageList);
     });
 }
@@ -119,12 +136,12 @@ function mapSettings() {
         notifyLB.text(settingsObj["error"]);
         notify.show();
         return;
-    } 
+    }
 
     tmpValue = settingsObj["categoryID"];
     if (tmpValue != null && tmpValue > 0) {
         $("#category option:eq(" + (tmpValue - 1) + ")").prop('selected', true);
-        categoryID = tmpValue;
+        categoryID = parseInt(tmpValue);
     } else {
         categoryID = 1;
     }
@@ -132,7 +149,7 @@ function mapSettings() {
     tmpValue = settingsObj["clarityReward"];
     if (tmpValue != null) {
         $("#clarity-reward").val(tmpValue);
-        clarityRewardVal = tmpValue;
+        clarityRewardVal = parseFloat(tmpValue);
     } else {
         $("#clarity-reward").val(0.05);
         clarityRewardVal = 0.05;
@@ -141,7 +158,7 @@ function mapSettings() {
     tmpValue = settingsObj["numTrials"];
     if (tmpValue != null) {
         $("#num-trials").val(tmpValue);
-        numTrialsVal = tmpValue;
+        numTrialsVal = parseInt(tmpValue);
     } else {
         $("#num-trials").val(4);
         numTrialsVal = 4;
@@ -150,7 +167,7 @@ function mapSettings() {
     tmpValue = settingsObj["trialDuration"];
     if (tmpValue != null) {
         $("#trial-duration").val(tmpValue);
-        trialDurationVal = tmpValue;
+        trialDurationVal = parseInt(tmpValue);
     } else {
         $("#trial-duration").val(60);
         trialDurationVal = 60;
@@ -160,12 +177,14 @@ function mapSettings() {
         tmpValue = settingsObj.components[i];
         if (tmpValue != null) {
             $("#clarity-" + (i + 1)).val(tmpValue);
-        }      
+        }
     }
 }
 
 function saveSettings() {
     var currJSON = "";
+
+    raiseSpinner();
 
     if (categories.val() != "") {
         settingsObj["categoryID"] = categories.val();
@@ -201,24 +220,50 @@ function saveSettings() {
 
     $.post("../Settings/Save", currJSON, function (data) {
         if (data != null) {
-            notifyLB.text(data);
+            settings.toggleClass("show");
+            raiseNotify(data);
         }
-
-        settings.toggleClass("show");
-        notify.toggleClass("show");
     });
 }
 
 function raiseNotify(noticeStr) {
-    notifyLB.text(noticeStr)
+    notifyLB.html(noticeStr)
     notify.toggleClass("show");
+}
+
+function raiseSpinner() {
+    loadingLB.show();
+    // delay for user experience...
+    setTimeout(function () {
+        loadingLB.hide();
+    }, 1000);
 }
 
 function setupTrials() {
     var temp = 0;
+    dataLog.length = 0;
+    trials.length = 0;
+    trialComps.length = 0;
 
-    try{
-        trialComps = settingsObj.components.slice();
+    try {
+        participantID = randomString(10);
+
+        dataLog["summary"] = {
+            "participantID": participantID,
+            "categoryID": categoryID,
+            "clarityReward": clarityRewardVal,
+            "numTrials": numTrialsVal,
+            "trialDuration": trialDurationVal,
+            "components": settingsObj.components.slice()
+        };
+
+        for (var i = 0; i < componentsCnt; i++) {
+            trialComps.push({
+                "clarityPunish": settingsObj.components[i],
+                "color": settingsObj.colors[i]
+            });
+        }
+
         // Randomize trial 1, push to trialSet, randomize trial 2,
         // push to trialSet, repeat.
         // Check if last component of trial 1 matches the first 
@@ -228,14 +273,14 @@ function setupTrials() {
             shuffleArray(trialComps);
 
             if (i > 0) {
-                if (trials[i - 1][componentsCnt - 1] == trialComps[0]) {
+                if (trials[trials.length - 1].clarityPunish == trialComps[0].clarityPunish) {
                     temp = trialComps[0];
                     trialComps[0] = trialComps[1];
-                    trialComps[1]= temp;
+                    trialComps[1] = temp;
                 }
             }
 
-            trials.push(trialComps.slice());
+            Array.prototype.push.apply(trials, trialComps);
         }
         //console.log(trials);
         return true;
@@ -255,51 +300,68 @@ function shuffleArray(array) {
     return array;
 }
 
-function startExperiment() {
-    isTrial = true;
+function runTrial() {
+    var currObj = null;
 
-    for (var i = 0; i < trials.length; i++) {
-        for (var j = 0; j < trials[i].length; j++) {
-            clarityPunish = trials[i][j];
-            
-            runTrial();
-        }
-    }
+    if (trials.length > 0) {
+        isTrial = true;
+
+        currObj = trials.pop();
+        clarityPunishVal = currObj["clarityPunish"];
+        currColorVal = currObj["color"];
+
+        currClarityVal = 100;
+        buttonACnt = 0;
+        buttonNCnt = 0;
+        buttonARate = 0;
+        buttonNRate = 0;
+        timeRemaining = trialDurationVal;
+
+        setBorderColor();
+        changeImage();
+
+        timer = setInterval(function () {
+            timeRemaining--;
+
+            if (timeRemaining <= 0) {
+                clearInterval(timer);
+                recordData();
+                runTrial();
+            }
+
+            if (buttonACnt > 0) {
+                buttonARate = parseFloat(buttonACnt / (trialDurationVal - timeRemaining)).toFixed(2);
+            }
+
+            if (buttonIntervalCnt == 0) decreaseClarity();
+
+            buttonIntervalCnt = 0;
+
+            //secondsLB.text(timeRemaining);
+            //buttonRateLB.text(buttonARate + " per second");
+        }, 1000);
+    } else {
+        isTrial = false;
+        trial.hide();
+        border.hide();
+        raiseSpinner();
+        saveData();       
+        console.log(JSON.stringify(dataLog));
+    }  
 }
 
-function runTrial() {
-    currClarityVal = 100;
-    buttonACnt = 0;
-    buttonNCnt = 0;
-    buttonARate = 0;
-    buttonNRate = 0;
-    timeRemaining = trialDurationVal;
-
-    changeImage();
-
-    timer = setInterval(function () {
-        timeRemaining--;
-        secondsLB.text(timeRemaining);
-
-        if (timeRemaining == 0) clearInterval(timer);
-
-        if (buttonACnt > 0) {
-            buttonARate = parseFloat(buttonACnt / (trialDurationVal - timeRemaining)).toFixed(2);
-        }
-
-        if (buttonIntervalCnt == 0) decreaseClarity();
-
-        buttonIntervalCnt = 0;
-
-        buttonRate.text(buttonARate + " per second");
-        console.log(timeRemaining);
-    }, 1000);
-
-    console.log(timeRemaining);
+function recordData() {
+    dataLog["trials"].push({
+            "clarityPunish": clarityPunishVal,
+            "buttonACnt": buttonACnt,
+            "buttonARate": buttonARate,
+            "buttonNCnt": buttonNCnt,
+            "buttonNRate": buttonNRate
+    });
 }
 
 function increaseClarity() {
-    currClarityVal -= (clarityReward * 100);
+    currClarityVal -= (clarityRewardVal * 100);
 
     if (currClarityVal <= 0) currClarityVal = 0;
 
@@ -309,7 +371,7 @@ function increaseClarity() {
 }
 
 function decreaseClarity() {
-    currClarityVal += (clarityPunish * 100);
+    currClarityVal += (clarityPunishVal * 100);
 
     if (currClarityVal >= 100) {
         currClarityVal = 100;
@@ -324,8 +386,30 @@ function changeImage() {
     var currIndex = 0;
     currIndex = Math.floor((Math.random() * (imageList.length - 1)) + 0);
 
-    style["opacity"] = 0
-    style["-webkit-filter"] = "blur(100px)"
-    mainImage.css(style);
-    mainImage.attr("src", imageList[currIndex]);   
+    // reset the clarity value and hide the image
+    currClarityVal = 100;
+    mainImage.attr("src", imageList[currIndex]);
+    mainImage.css("opacity", 0);
 }
+
+function setBorderColor() {
+    $("#top, #right, #bottom, #left").css("background", currColorVal);
+    border.show();
+}
+
+function saveData() {
+    var currJSON = JSON.stringify(dataLog);
+
+    $.post("../Data/Save", currJSON, function (data) {
+        if (data != null) raiseNotify(data + "<p>Experiment completed! Thank you for participating!<p>");
+    });
+}
+
+function randomString(length) {
+    var charSet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    var result = '';
+    for (var i = length; i > 0; --i) result += charSet[Math.round(Math.random() * (charSet.length - 1))];
+    return result;
+}
+
+// END - Functions ===========================================

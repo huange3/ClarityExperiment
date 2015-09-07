@@ -15,16 +15,24 @@ namespace Clarity.Controllers
         public void Load(int catID)
         {
             string[] imageFiles;
-            string filePath = "";
+            var filePath = "";
+            var folderName = "";
             JavaScriptSerializer js = new JavaScriptSerializer();
 
             try
             {
                 if (catID <= 0) catID = (int)Constants.Folders.Animals;
 
-                filePath = Server.MapPath(Constants.filePathImages) + "/" + Enum.GetName(typeof(Constants.Folders), catID);
+                folderName = Enum.GetName(typeof(Constants.Folders), catID);
+                filePath = Server.MapPath(Constants.filePathImages) + "/" + folderName;
 
-                imageFiles = Directory.GetFiles(filePath);
+                imageFiles = Directory.GetFiles(filePath)
+                    .Select(path => Path.GetFileName(path)).ToArray();
+
+                for(int i=0; i < imageFiles.Length; i++)
+                {
+                    imageFiles[i] = Constants.filePathImages + "/" + folderName + "/" + imageFiles[i];
+                }
 
                 Response.ContentType = "application/json";
                 Response.Write(js.Serialize(imageFiles));
