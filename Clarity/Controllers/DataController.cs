@@ -9,6 +9,7 @@ using System.Data;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 
 namespace Clarity.Controllers
 {
@@ -19,16 +20,50 @@ namespace Clarity.Controllers
         {
             var currJSON = "";
             var filePath = Server.MapPath(Constants.filePathData);
+            DirectoryInfo info = null;
+            FileInfo[] files = null;
+            List<DataFile> dataFiles = null;
+            DataFile dataFile = null;
 
             try
             {
+                info = new DirectoryInfo(filePath);
 
+                files = info.GetFiles().OrderByDescending(f => f.CreationTime).ToArray();
+
+                if (files.Length <= 0)
+                {
+                    currJSON = Functions.writeSuccess("No data files found.");
+                    Response.ContentType = "application/json";
+                    Response.Write(currJSON);
+                }
+
+                foreach(FileInfo currFile in files)
+                {
+                    dataFile.FileName = currFile.Name;
+                    dataFile.FilePath = currFile.FullName;
+                    dataFile.FileExtension = currFile.Extension;
+                    dataFile.FileCreationDtm = currFile.CreationTime.ToString("g", CultureInfo.CreateSpecificCulture("en-us"));
+
+                    dataFiles.Add(dataFile);
+                }
+
+                currJSON = JsonConvert.SerializeObject(dataFiles);
+                Response.ContentType = "application/json";
+                Response.Write(currJSON);
             }
             catch (Exception e)
             {
-                currJSON = "{error: \"Error occurred while loading data: " + e.Message + "}";
+                currJSON = Functions.writeError("Error occurred while loading data: " + e.Message);
                 Response.ContentType = "application/json";
                 Response.Write(currJSON);             
+            }
+            finally
+            {
+                info = null;
+                files = null;
+                dataFile = null;
+                dataFiles = null;
             }
         }
 
@@ -146,5 +181,13 @@ namespace Clarity.Controllers
             }
             return currData;
         }
+    }
+
+    public class DataFile
+    {
+        public string FileName { get; set; }
+        public string FilePath { get; set; }
+        public string FileExtension { get; set; }
+        public string FileCreationDtm { get; set; }
     }
 }

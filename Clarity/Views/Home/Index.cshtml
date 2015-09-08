@@ -5,7 +5,7 @@
 
 <div class="wrapper">
     <a href="#" id="settings-btn" class="btn blue">Settings</a>
-    <a href="#" id="data-btn" class="btn blue">Download Data</a>
+    <a href="#" id="data-btn" class="btn blue">Data Logs</a>
     <a href="#" id="start-exp-btn" class="btn green">Start Experiment</a>
 </div>
 
@@ -19,7 +19,7 @@
                     <option value="2">Real Estate</option>
                     <option value="3">Sports</option>
                     <option value="4">Nature</option>
-                    <option value="5">Funny Quotes</option>
+                    <option value="5">Tattoos</option>
                     <option value="6">Celebrities</option>
                     <option value="7">Food</option>
                 </select>
@@ -109,12 +109,6 @@
     <a href="#" id="cancel-btn" class="btn red">Cancel</a>
 </div>
 
-<div id="notify" class="popup">
-    <p id="notify-body"></p>
-    <a href="#" id="ok-btn" class="btn green">OK</a>
-</div>
-
-
 <div id="instructions" class="popup">
     <p>Press <span class="key">A</span> to reveal the image.</p>
     <p>Press <span class="key">N</span> to change the image.</p>
@@ -127,12 +121,24 @@
     <div id="button-count"></div>
     <div id="seconds"></div>*@
 </div>
-
 <div id="border" style="display:none">
     <div id="left"></div>
     <div id="right"></div>
     <div id="top"></div>
     <div id="bottom"></div>
+</div>
+
+<div id="data-logs" class="popup">
+    <table id="data-table">
+        <tbody>
+        </tbody>
+    </table>
+    <a href="#" class="back-btn btn blue">Back</a>
+</div>
+
+<div id="notify" class="popup">
+    <p id="notify-body"></p>
+    <a href="#" class="ok-btn btn green">OK</a>
 </div>
 
 <div class="loading" style="display:none">Loading...</div>

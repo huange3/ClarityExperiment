@@ -27,14 +27,14 @@ namespace Clarity.Controllers
                     }
                 }
 
-                if (currJSON == "") currJSON = "{error: \"Missing settings.json file.\"}";
+                if (currJSON == "") currJSON = Functions.writeError("Missing settings.json file.");
 
                 Response.ContentType = "application/json";
                 Response.Write(currJSON);
             }
             catch (Exception e)
             {
-                currJSON = "{error: \"Error occurred while loading settings JSON: " + e.Message + "\"}";
+                currJSON = Functions.writeError("Error occurred while loading settings JSON: " + e.Message);
                 Response.ContentType = "application/json";
                 Response.Write(currJSON);
             }

@@ -8,7 +8,8 @@ var startTrialBtn = $("#start-trial-btn");
 var settings = $("#settings");
 var notify = $("#notify");
 var notifyLB = $("#notify-body");
-var okBtn = $("#ok-btn");
+var okBtn = $(".ok-btn");
+var backBtn = $(".back-btn");
 var instructions = $("#instructions");
 var trial = $("#trial-body");
 var mainImage = $("#main-image");
@@ -33,6 +34,7 @@ var dataLog = {
     "summary": "",
     "trials": []
 };
+var dataLogAll = {};
 
 var participantID = "";
 var categoryID = 0;
@@ -417,8 +419,20 @@ function loadData() {
     raiseSpinner();
 
     $.get("../Data/Load", function (data) {
+        dataLogAll = data;
 
+        if (dataLogAll["error"] != null) {
+            notifyLB.text(dataLogAll["error"]);
+            notify.show();
+            return;
+        }
+
+        mapData();
     });
+}
+
+function mapData() {
+
 }
 
 function randomString(length) {
