@@ -1,0 +1,22 @@
+Date	09-08-2015
+Participant ID	KEPP0BR3X1
+Category ID	3
+Clarity Reward	0.05
+Trials per Component	2
+Trial Duration	20
+Components	0	0.01	0.05	0.1	0.25	1	
+
+Clarity Punish	Button A Count	Button A Rate	Button N Count	Button N Rate
+0.01	59	3.00	2	0.11	
+0.1	62	3.26	3	0.11	
+0.25	69	3.42	3	0.16	
+0.05	65	3.21	3	0.16	
+1	77	3.89	3	0.16	
+0	53	2.63	2	0.11	
+0.25	64	3.11	2	0.11	
+1	57	2.79	2	0.11	
+0.05	43	2.26	1	0.05	
+0	42	2.21	2	0.05	
+0.01	67	3.47	2	0.11	
+0.1	81	4.00	3	0.16	
+

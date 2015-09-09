@@ -1,0 +1,16 @@
+Date	09-06-2015
+Participant ID	TA3EFT36II
+Category ID	1
+Clarity Reward	0.05
+Trials per Component	1
+Trial Duration	10
+Components	0	0.01	0.05	0.1	0.25	1	
+
+Clarity Punish	Button A Count	Button A Rate	Button N Count	Button N Rate
+1	34	3.22	0	0	
+0	22	2.44	0	0	
+0.25	29	3.22	0	0	
+0.05	25	2.78	0	0	
+0.1	28	2.78	0	0	
+0.01	28	2.78	0	0	
+
