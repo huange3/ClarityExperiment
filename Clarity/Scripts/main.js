@@ -66,7 +66,6 @@ const componentsCnt = 6;
 // BEGIN - Event handling of DOM elements ========================
 
 loadSettings();
-loadImages();
 
 settingsBtn.click(function () {
     loadSettings();
@@ -75,9 +74,6 @@ settingsBtn.click(function () {
 
 saveBtn.click(function () {
     saveSettings();
-    // reload everything
-    loadSettings();
-    loadImages();
 });
 
 cancelBtn.click(function () {
@@ -139,6 +135,7 @@ function loadSettings() {
         }
         //console.log(settingsObj);
         mapSettings();
+        loadImages();
     });
 }
 
@@ -149,7 +146,7 @@ function loadImages() {
         } else {
             imageList = data;
         }
-        //console.log(imageList);
+        console.log(imageList);
     });
 }
 
@@ -229,6 +226,8 @@ function saveSettings() {
         settingsObj["trialDuration"] = 60;
     }
 
+    trialDurationVal = settingsObj["trialDuration"];
+
     for (var i = 0; i < componentsCnt; i++) {
         if ($("#clarity-" + (i + 1)).val() != "") {
             settingsObj.components[i] = $("#clarity-" + (i + 1)).val();
@@ -247,6 +246,8 @@ function saveSettings() {
             } else {
                 raiseNotify(data["success"]);
             }
+
+            loadSettings();
         }, 1000);     
     });
 }
