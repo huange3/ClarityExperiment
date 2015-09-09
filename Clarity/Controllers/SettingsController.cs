@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using System.IO;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Clarity.Shared;
 
 namespace Clarity.Controllers
@@ -44,8 +46,6 @@ namespace Clarity.Controllers
         {
             var currJSON = "";
             var filePath = Server.MapPath(Constants.filePathSettings);
-            var returnVal = "";
-            StreamWriter writer = null;
 
             try
             {
@@ -53,30 +53,27 @@ namespace Clarity.Controllers
 
                 if (currJSON != "")
                 {
-                    writer = new StreamWriter(filePath, false);
+                    StreamWriter writer = new StreamWriter(filePath, false);
 
                     using (writer)
                     {
                         writer.WriteLine(currJSON);
                     }
 
-                    returnVal = "Settings saved successfully!";
+                    currJSON = Functions.writeSuccess("Settings saved successfully!");
                 }
                 else
                 {
-                    returnVal = "Invalid JSON received. Please try again.";
+                    currJSON = Functions.writeError("Invalid JSON received. Please try again.");
                 }
 
-                Response.Write(returnVal);
+                Response.ContentType = "application/json";
+                Response.Write(currJSON);
             }
             catch (Exception e)
             {
-                returnVal = "Error occurred while saving settings JSON: " + e.Message;
-                Response.Write(returnVal);
-            }
-            finally
-            {
-                writer = null;
+                currJSON = Functions.writeError("Error occurred while saving settings JSON: " + e.Message);
+                Response.Write(currJSON);
             }
         }
 

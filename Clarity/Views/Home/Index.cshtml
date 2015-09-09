@@ -2,26 +2,26 @@
 @{
     ViewBag.Title = "Index";
 }
-
-<div class="wrapper">
-    <a href="#" id="settings-btn" class="btn blue">Settings</a>
-    <a href="#" id="data-btn" class="btn blue">Data Logs</a>
-    <a href="#" id="start-exp-btn" class="btn green">Start Experiment</a>
+<div id="options" class="wrapper-bg">
+    <div class="wrapper">
+        <a href="#" id="settings-btn" class="btn blue">Settings</a>
+        <a href="#" id="data-btn" class="btn blue">Data Logs</a>
+        <a href="#" id="start-exp-btn" class="btn green">Start Experiment</a>
+    </div>
 </div>
-
-<div id="settings" class="popup">
+<div id="settings" class="popup view">
     <table>
         <tr>
             <td>Category:</td>
             <td>
                 <select id="category">
                     <option value="1" selected>Animals</option>
-                    <option value="2">Real Estate</option>
-                    <option value="3">Sports</option>
-                    <option value="4">Nature</option>
-                    <option value="5">Tattoos</option>
-                    <option value="6">Celebrities</option>
-                    <option value="7">Food</option>
+                    <option value="2">Celebrities</option>
+                    <option value="3">Food</option>
+                    <option value="4">Nature</option>                   
+                    <option value="5">Real Estate</option>
+                    <option value="6">Sports</option>
+                    <option value="7">Tattoos</option>
                 </select>
             </td>
         </tr>
@@ -109,7 +109,7 @@
     <a href="#" id="cancel-btn" class="btn red">Cancel</a>
 </div>
 
-<div id="instructions" class="popup">
+<div id="instructions" class="popup view">
     <p>Press <span class="key">A</span> to reveal the image.</p>
     <p>Press <span class="key">N</span> to change the image.</p>
     <p>When you're ready, press "Start" to begin the experiment!</p>
@@ -128,15 +128,21 @@
     <div id="bottom"></div>
 </div>
 
-<div id="data-logs" class="popup">
+<div id="data-view" class="popup view">
+    <div><p>To download files, right-click the "Download" link and select "Save As..."</p></div>
     <table id="data-table">
         <tbody>
+            <tr>
+                <th>File Name</th>
+                <th>Creation Date</th>
+                <th>Link</th>
+            </tr>
         </tbody>
     </table>
     <a href="#" class="back-btn btn blue">Back</a>
 </div>
 
-<div id="notify" class="popup">
+<div id="notify" class="popup view">
     <p id="notify-body"></p>
     <a href="#" class="ok-btn btn green">OK</a>
 </div>

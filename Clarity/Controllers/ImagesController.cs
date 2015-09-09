@@ -5,6 +5,8 @@ using System.Web;
 using System.Web.Mvc;
 using System.IO;
 using System.Web.Script.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Clarity.Shared;
 
 namespace Clarity.Controllers
@@ -40,7 +42,8 @@ namespace Clarity.Controllers
             catch (Exception e)
             {
                 Response.StatusCode = 500;
-                Response.Write("Error occurred while loading images: " + e.Message);
+                Response.ContentType = "application/json";
+                Response.Write(Functions.writeError("Error occurred while loading images: " + e.Message));
             }
             finally
             {

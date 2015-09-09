@@ -22,11 +22,12 @@ var buttonCountLB = $("#button-count");
 var secondsLB = $("#seconds");
 var border = $("#border");
 var loadingLB = $(".loading");
+var dataView = $("#data-view");
+var tableEnd = $('#data-table > tbody:last');
 
 // global variables
 var settingsObj = null;
 var responseObj = null;
-
 var trials = [];
 var trialComps = [];
 var imageList = [];
@@ -34,7 +35,7 @@ var dataLog = {
     "summary": "",
     "trials": []
 };
-var dataLogAll = {};
+var dataLogAll = null;
 
 var participantID = "";
 var categoryID = 0;
@@ -68,6 +69,7 @@ loadSettings();
 loadImages();
 
 settingsBtn.click(function () {
+    loadSettings();
     settings.toggleClass("show");
 });
 
@@ -102,6 +104,10 @@ dataBtn.click(function () {
     loadData();
 });
 
+backBtn.click(function () {
+    dataView.toggleClass("show");
+})
+
 $(document).keyup(function (e) {
     if (isTrial) {
         if (e.which == 65) {
@@ -125,6 +131,12 @@ $(document).keyup(function (e) {
 function loadSettings() {
     $.get("../Settings/Load", function (data) {
         if (data != null) settingsObj = data;
+
+        if (settingsObj["error"] != null) {
+            notifyLB.text(settingsObj["error"]);
+            notify.show();
+            return;
+        }
         //console.log(settingsObj);
         mapSettings();
     });
@@ -132,19 +144,17 @@ function loadSettings() {
 
 function loadImages() {
     $.get("../Images/Load", "catID=" + categoryID, function (data) {
-        if (data != null) imageList = data;
+        if (data["error"] != null) {
+            raiseNotify(data["error"]);
+        } else {
+            imageList = data;
+        }
         //console.log(imageList);
     });
 }
 
 function mapSettings() {
     var tmpValue = null;
-
-    if (settingsObj["error"] != null) {
-        notifyLB.text(settingsObj["error"]);
-        notify.show();
-        return;
-    }
 
     tmpValue = settingsObj["categoryID"];
     if (tmpValue != null && tmpValue > 0) {
@@ -192,7 +202,8 @@ function mapSettings() {
 function saveSettings() {
     var currJSON = "";
 
-    raiseSpinner();
+    loadingLB.show();
+    settings.toggleClass("show");
 
     if (categories.val() != "") {
         settingsObj["categoryID"] = categories.val();
@@ -227,24 +238,22 @@ function saveSettings() {
     currJSON = JSON.stringify(settingsObj);
 
     $.post("../Settings/Save", currJSON, function (data) {
-        if (data != null) {
-            settings.toggleClass("show");
-            raiseNotify(data);
-        }
+        // delay for user experience
+        setTimeout(function () {          
+            loadingLB.hide();
+            
+            if (data["error"] != null) {              
+                raiseNotify(data["error"]);
+            } else {
+                raiseNotify(data["success"]);
+            }
+        }, 1000);     
     });
 }
 
 function raiseNotify(noticeStr) {
     notifyLB.html(noticeStr)
     notify.toggleClass("show");
-}
-
-function raiseSpinner() {
-    loadingLB.show();
-    // delay for user experience...
-    setTimeout(function () {
-        loadingLB.hide();
-    }, 1000);
 }
 
 function setupTrials() {
@@ -341,6 +350,10 @@ function runTrial() {
                 buttonARate = parseFloat(buttonACnt / (trialDurationVal - timeRemaining)).toFixed(2);
             }
 
+            if (buttonNCnt > 0) {
+                buttonNRate = parseFloat(buttonNCnt / (trialDurationVal - timeRemaining)).toFixed(2);
+            }
+
             if (buttonIntervalCnt == 0) decreaseClarity();
 
             buttonIntervalCnt = 0;
@@ -352,7 +365,6 @@ function runTrial() {
         isTrial = false;
         trial.hide();
         border.hide();
-        raiseSpinner();
         saveData();       
         console.log(JSON.stringify(dataLog));
     }  
@@ -410,29 +422,53 @@ function setBorderColor() {
 function saveData() {
     var currJSON = JSON.stringify(dataLog);
 
+    loadingLB.show();
+
     $.post("../Data/Save", currJSON, function (data) {
-        if (data != null) raiseNotify(data + "<p>Experiment complete! Thank you for participating!<p>");
+        setTimeout(function () {
+            loadingLB.hide();
+            if (data != null) raiseNotify(data + "<p>Experiment complete! Thank you for participating!<p>");
+        }, 1000);      
     });
 }
 
 function loadData() {
-    raiseSpinner();
+    loadingLB.show();
 
     $.get("../Data/Load", function (data) {
-        dataLogAll = data;
+        setTimeout(function () {
+            loadingLB.hide();
+            dataLogAll = data;
 
-        if (dataLogAll["error"] != null) {
-            notifyLB.text(dataLogAll["error"]);
-            notify.show();
-            return;
-        }
+            if (dataLogAll["error"] != null) {
+                raiseNotify(dataLogAll["error"]);
+                return;
+            }
 
-        mapData();
+            mapData();
+        }, 1000);        
     });
 }
 
 function mapData() {
+    var currFileName = "";
+    var currCreationDtm = "";
+    var currFilePath = "";
+    // empty our table
+    $("#data-table tr").slice(1).remove();
 
+    for (var i = 0; i < dataLogAll.length; i++) {
+        currFileName = dataLogAll[i].FileName;
+        currFilePath = dataLogAll[i].FilePath;
+        currCreationDtm = dataLogAll[i].FileCreationDtm;
+
+        console.log(currFileName);
+
+        tableEnd.append("<tr><td>" + currFileName + "</td><td>" + currCreationDtm +
+            "</td><td><a href=\"../Data/" + currFileName + "\">Download</a></td></tr>");
+    }
+
+    dataView.toggleClass("show");
 }
 
 function randomString(length) {
@@ -440,6 +476,10 @@ function randomString(length) {
     var result = '';
     for (var i = length; i > 0; --i) result += charSet[Math.round(Math.random() * (charSet.length - 1))];
     return result;
+}
+
+function downloadLink(name, type) {
+    $.get("../Data/Download", {"name":name, "type":type});
 }
 
 // END - Functions ===========================================

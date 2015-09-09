@@ -22,14 +22,14 @@ namespace Clarity.Controllers
             var filePath = Server.MapPath(Constants.filePathData);
             DirectoryInfo info = null;
             FileInfo[] files = null;
-            List<DataFile> dataFiles = null;
+            List<DataFile> dataFiles = new List<DataFile>();
             DataFile dataFile = null;
 
             try
             {
                 info = new DirectoryInfo(filePath);
-
-                files = info.GetFiles().OrderByDescending(f => f.CreationTime).ToArray();
+                // just get the text files and order by creation date
+                files = info.GetFiles("*.txt").OrderByDescending(f => f.CreationTime).ToArray();
 
                 if (files.Length <= 0)
                 {
@@ -40,6 +40,7 @@ namespace Clarity.Controllers
 
                 foreach(FileInfo currFile in files)
                 {
+                    dataFile = new DataFile();
                     dataFile.FileName = currFile.Name;
                     dataFile.FilePath = currFile.FullName;
                     dataFile.FileExtension = currFile.Extension;
@@ -165,6 +166,33 @@ namespace Clarity.Controllers
                 summaryObj = null;
                 trials = null;
                 components = null;
+            }
+        }
+
+        public void Download(string name, string type)
+        {
+            var currJSON = "";
+
+            try
+            {
+                if (name == "")
+                {
+                    currJSON = Functions.writeError("Invalid file path received. Please try again.");
+                    Response.ContentType = "application/json";
+                    Response.Write(currJSON);
+                } else
+                {
+                    Response.Clear();
+                    Response.ContentType = "application/text";
+                    Response.AddHeader("Content-Disposition", "attachment; filename=" + name + ";");
+                    Response.TransmitFile(Constants.filePathData + "/" + name);
+                }
+            }
+            catch (Exception e)
+            {
+                currJSON = Functions.writeError("Error occurred while preparing download link: " + e.Message);
+                Response.ContentType = "application/json";
+                Response.Write(currJSON);
             }
         }
 
