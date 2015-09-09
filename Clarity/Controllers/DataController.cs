@@ -33,9 +33,10 @@ namespace Clarity.Controllers
 
                 if (files.Length <= 0)
                 {
-                    currJSON = Functions.writeSuccess("No data files found.");
+                    currJSON = Functions.writeError("No data files found.");
                     Response.ContentType = "application/json";
                     Response.Write(currJSON);
+                    return;
                 }
 
                 foreach(FileInfo currFile in files)
@@ -166,33 +167,6 @@ namespace Clarity.Controllers
                 summaryObj = null;
                 trials = null;
                 components = null;
-            }
-        }
-
-        public void Download(string name, string type)
-        {
-            var currJSON = "";
-
-            try
-            {
-                if (name == "")
-                {
-                    currJSON = Functions.writeError("Invalid file path received. Please try again.");
-                    Response.ContentType = "application/json";
-                    Response.Write(currJSON);
-                } else
-                {
-                    Response.Clear();
-                    Response.ContentType = "application/text";
-                    Response.AddHeader("Content-Disposition", "attachment; filename=" + name + ";");
-                    Response.TransmitFile(Constants.filePathData + "/" + name);
-                }
-            }
-            catch (Exception e)
-            {
-                currJSON = Functions.writeError("Error occurred while preparing download link: " + e.Message);
-                Response.ContentType = "application/json";
-                Response.Write(currJSON);
             }
         }
 

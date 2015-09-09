@@ -462,7 +462,7 @@ function mapData() {
         currFilePath = dataLogAll[i].FilePath;
         currCreationDtm = dataLogAll[i].FileCreationDtm;
 
-        console.log(currFileName);
+        //console.log(currFileName);
 
         tableEnd.append("<tr><td>" + currFileName + "</td><td>" + currCreationDtm +
             "</td><td><a href=\"../Data/" + currFileName + "\">Download</a></td></tr>");
