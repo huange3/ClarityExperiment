@@ -2,8 +2,8 @@
 @{
     ViewBag.Title = "Index";
 }
-<div id="options" class="wrapper-bg">
-    <div class="wrapper">
+<div class="wrapper-bg">
+    <div id="options" class="wrapper">
         <a href="#" id="settings-btn" class="btn blue">Settings</a>
         <a href="#" id="data-btn" class="btn blue">Data Logs</a>
         <a href="#" id="start-exp-btn" class="btn green">Start Experiment</a>
@@ -45,6 +45,14 @@
             </td>
             <td>
                 <input id="trial-duration" type="number" min="0" value="60" /> seconds
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Show Stats?
+            </td>
+            <td>
+                <input id="show-stats" type="checkbox" />
             </td>
         </tr>
     </table>
@@ -117,9 +125,12 @@
 </div>
 <div id="trial-body" style="display:none">
     <img id="main-image" src="" style="opacity:0" />
-    @*<div id="button-rate"></div>
-    <div id="button-count"></div>
-    <div id="seconds"></div>*@
+    <div id="trial-stats">
+        <div id="button-rate"></div>
+        <div id="button-count"></div>
+        <div id="button-n-count"></div>
+        <div id="seconds"></div>
+    </div>
 </div>
 <div id="border" style="display:none">
     <div id="left"></div>
@@ -127,6 +138,7 @@
     <div id="top"></div>
     <div id="bottom"></div>
 </div>
+<div id="black-out" style="display:none"></div>
 
 <div id="data-view" class="popup view">
     <div><p>To download files, right-click the "Download" link and select "Save As..."</p></div>

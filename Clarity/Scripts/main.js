@@ -1,4 +1,5 @@
 ﻿// DOM elements
+var mainOptions = $("#options");
 var settingsBtn = $("#settings-btn");
 var saveBtn = $("#save-btn");
 var cancelBtn = $("#cancel-btn");
@@ -19,11 +20,15 @@ var numTrials = $("#num-trials");
 var trialDuration = $("#trial-duration");
 var buttonRateLB = $("#button-rate");
 var buttonCountLB = $("#button-count");
+var buttonNCountLB = $("#button-n-count");
 var secondsLB = $("#seconds");
 var border = $("#border");
 var loadingLB = $(".loading");
 var dataView = $("#data-view");
-var tableEnd = $('#data-table > tbody:last');
+var tableEnd = $("#data-table > tbody:last");
+var showStats = $("#show-stats");
+var trialStatsLB = $("#trial-stats");
+var blackOut = $("#black-out");
 
 // global variables
 var settingsObj = null;
@@ -50,6 +55,7 @@ var buttonNRate = 0.0;
 var timer = null;
 var timeRemaining = 0;
 var isTrial = false;
+var isShowStats = false;
 var currClarityVal = 100;
 var clarityPunishVal = 0;
 var buttonIntervalCnt = 0;
@@ -69,6 +75,7 @@ loadSettings();
 
 settingsBtn.click(function () {
     loadSettings();
+    mainOptions.hide();
     settings.toggleClass("show");
 });
 
@@ -78,14 +85,17 @@ saveBtn.click(function () {
 
 cancelBtn.click(function () {
     settings.toggleClass("show");
+    mainOptions.show();
 });
 
 okBtn.click(function () {
     notify.toggleClass("show");
+    mainOptions.show();
 });
 
 startExpBtn.click(function () {
     if (setupTrials()) {
+        mainOptions.hide();
         instructions.toggleClass("show");
     }
 });
@@ -93,28 +103,35 @@ startExpBtn.click(function () {
 startTrialBtn.click(function () {
     instructions.toggleClass("show");
     trial.show();
+
+    if (isShowStats) trialStatsLB.show();
+    else trialStatsLB.hide();
+
     runTrial();
 });
 
 dataBtn.click(function () {
+    mainOptions.hide();
     loadData();
 });
 
 backBtn.click(function () {
     dataView.toggleClass("show");
+    mainOptions.show();
 })
 
 $(document).keyup(function (e) {
     if (isTrial) {
         if (e.which == 65) {
             buttonACnt++;
-            //buttonCountLB.text(buttonACnt);
+            buttonCountLB.text("Button A Count: " + buttonACnt);
             buttonIntervalCnt++;
             increaseClarity();
         }
 
         if (e.which == 78) {
             buttonNCnt++;
+            buttonNCountLB.text("Button N Count: " + buttonNCnt);
             changeImage();
         }
     }
@@ -163,29 +180,38 @@ function mapSettings() {
 
     tmpValue = settingsObj["clarityReward"];
     if (tmpValue != null) {
-        $("#clarity-reward").val(tmpValue);
+        clarityReward.val(tmpValue);
         clarityRewardVal = parseFloat(tmpValue);
     } else {
-        $("#clarity-reward").val(0.05);
+        clarityReward.val(0.05);
         clarityRewardVal = 0.05;
     }
 
     tmpValue = settingsObj["numTrials"];
     if (tmpValue != null) {
-        $("#num-trials").val(tmpValue);
+        numTrials.val(tmpValue);
         numTrialsVal = parseInt(tmpValue);
     } else {
-        $("#num-trials").val(4);
+        numTrials.val(4);
         numTrialsVal = 4;
     }
 
     tmpValue = settingsObj["trialDuration"];
     if (tmpValue != null) {
-        $("#trial-duration").val(tmpValue);
+        trialDuration.val(tmpValue);
         trialDurationVal = parseInt(tmpValue);
     } else {
-        $("#trial-duration").val(60);
+        trialDuration.val(60);
         trialDurationVal = 60;
+    }
+
+    tmpValue = settingsObj["showStats"];
+    if (tmpValue != null && parseInt(tmpValue) > 0) {
+        showStats.prop("checked", true);
+        isShowStats = true;
+    } else {
+        showStats.prop("checked", false);
+        isShowStats = false;
     }
 
     for (var i = 0; i < componentsCnt; i++) {
@@ -226,6 +252,12 @@ function saveSettings() {
         settingsObj["trialDuration"] = 60;
     }
 
+    if (showStats.is(":checked")) {
+        settingsObj["showStats"] = 1;
+    } else {
+        settingsObj["showStats"] = 0;
+    }
+
     trialDurationVal = settingsObj["trialDuration"];
 
     for (var i = 0; i < componentsCnt; i++) {
@@ -239,14 +271,14 @@ function saveSettings() {
     $.post("../Settings/Save", currJSON, function (data) {
         // delay for user experience
         setTimeout(function () {          
-            loadingLB.hide();
-            
+                     
             if (data["error"] != null) {              
                 raiseNotify(data["error"]);
             } else {
                 raiseNotify(data["success"]);
             }
 
+            loadingLB.hide();
             loadSettings();
         }, 1000);     
     });
@@ -338,13 +370,22 @@ function runTrial() {
         setBorderColor();
         changeImage();
 
+        buttonCountLB.text("Button A Count: " + buttonACnt);
+        buttonNCountLB.text("Button N Count: " + buttonNCnt);
+
         timer = setInterval(function () {
             timeRemaining--;
 
             if (timeRemaining <= 0) {
                 clearInterval(timer);
                 recordData();
-                runTrial();
+
+                blackOut.show();
+
+                setTimeout(function(){
+                    blackOut.hide();
+                    runTrial();
+                },5000);
             }
 
             if (buttonACnt > 0) {
@@ -359,8 +400,8 @@ function runTrial() {
 
             buttonIntervalCnt = 0;
 
-            //secondsLB.text(timeRemaining);
-            //buttonRateLB.text(buttonARate + " per second");
+            secondsLB.text(timeRemaining + " second(s) remaining");
+            buttonRateLB.text("Button A Rate: " + buttonARate + " per second");
         }, 1000);
     } else {
         isTrial = false;
@@ -427,8 +468,9 @@ function saveData() {
 
     $.post("../Data/Save", currJSON, function (data) {
         setTimeout(function () {
-            loadingLB.hide();
+            
             if (data != null) raiseNotify(data + "<p>Experiment complete! Thank you for participating!<p>");
+            loadingLB.hide();
         }, 1000);      
     });
 }
@@ -437,16 +479,16 @@ function loadData() {
     loadingLB.show();
 
     $.get("../Data/Load", function (data) {
-        setTimeout(function () {
-            loadingLB.hide();
+        setTimeout(function () {          
             dataLogAll = data;
 
             if (dataLogAll["error"] != null) {
                 raiseNotify(dataLogAll["error"]);
                 return;
             }
-
+            
             mapData();
+            loadingLB.hide();
         }, 1000);        
     });
 }
