@@ -71,16 +71,17 @@ const componentsCnt = 6;
 
 // BEGIN - Event handling of DOM elements ========================
 
-loadSettings();
-
 settingsBtn.click(function () {
-    loadSettings();
-    mainOptions.hide();
-    settings.toggleClass("show");
+    $.when(loadSettings()).then(function() {
+        mainOptions.hide();
+        settings.toggleClass("show");
+    });
 });
 
 saveBtn.click(function () {
-    saveSettings();
+    $.when(saveSettings()).then(function () {
+        loadSettings();
+    });
 });
 
 cancelBtn.click(function () {
@@ -94,10 +95,18 @@ okBtn.click(function () {
 });
 
 startExpBtn.click(function () {
-    if (setupTrials()) {
-        mainOptions.hide();
-        instructions.toggleClass("show");
-    }
+    loadingLB.show();
+    mainOptions.hide();
+
+    $.when(loadSettings()).then(function () {
+        loadImages();
+    }).then(function(){
+        if (setupTrials()) {
+            loadingLB.hide();           
+            instructions.toggleClass("show");
+        }
+    });
+    
 });
 
 startTrialBtn.click(function () {
@@ -142,7 +151,7 @@ $(document).keyup(function (e) {
 // BEGIN - Functions ===========================================
 
 function loadSettings() {
-    $.get("../Settings/Load", function (data) {
+   return $.get("../Settings/Load", function (data) {
         if (data != null) settingsObj = data;
 
         if (settingsObj["error"] != null) {
@@ -152,12 +161,11 @@ function loadSettings() {
         }
         //console.log(settingsObj);
         mapSettings();
-        loadImages();
     });
 }
 
 function loadImages() {
-    $.get("../Images/Load", "catID=" + categoryID, function (data) {
+   return $.get("../Images/Load", "catID=" + categoryID, function (data) {
         if (data["error"] != null) {
             raiseNotify(data["error"]);
         } else {
@@ -268,7 +276,7 @@ function saveSettings() {
 
     currJSON = JSON.stringify(settingsObj);
 
-    $.post("../Settings/Save", currJSON, function (data) {
+    return $.post("../Settings/Save", currJSON, function (data) {
         // delay for user experience
         setTimeout(function () {          
                      
@@ -279,7 +287,6 @@ function saveSettings() {
             }
 
             loadingLB.hide();
-            loadSettings();
         }, 1000);     
     });
 }
@@ -448,11 +455,18 @@ function decreaseClarity() {
 
 function changeImage() {
     var currIndex = 0;
-    currIndex = Math.floor((Math.random() * (imageList.length - 1)) + 0);
+    var currImagePath = "";
+
+    // get our random image, then remove it from the array
+    currIndex = Math.floor(Math.random() * (imageList.length - 1));
+
+    currImagePath = imageList[currIndex];
+
+    imageList.splice(currIndex, 1);
 
     // reset the clarity value and hide the image
     currClarityVal = 100;
-    mainImage.attr("src", imageList[currIndex]);
+    mainImage.attr("src", currImagePath);
     mainImage.css("opacity", 0);
 }
 
@@ -466,7 +480,7 @@ function saveData() {
 
     loadingLB.show();
 
-    $.post("../Data/Save", currJSON, function (data) {
+    return $.post("../Data/Save", currJSON, function (data) {
         setTimeout(function () {
             
             if (data != null) raiseNotify(data + "<p>Experiment complete! Thank you for participating!<p>");
@@ -478,7 +492,7 @@ function saveData() {
 function loadData() {
     loadingLB.show();
 
-    $.get("../Data/Load", function (data) {
+    return $.get("../Data/Load", function (data) {
         setTimeout(function () {          
             dataLogAll = data;
 
