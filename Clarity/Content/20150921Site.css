@@ -29,7 +29,7 @@ input[type="number"]{text-align:center;max-width:80px}
 .show~.overlay{visibility:visible;opacity:1;transition:opacity .3s}
 .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.3);visibility:hidden;opacity:0;z-index:900}
 .btn{display:block;padding:15px;text-align:center;color:#fff;text-decoration:none;margin-top:10px}
-#trial-body{position:absolute;top:0;left:0;height:100%;width:100%;background:#fff;text-align:center}
+#trial-body{position:absolute;top:0;left:0;height:100%;width:100%;background:#000;text-align:center}
 #trial-stats{position:absolute;top:150px;right:150px;background:#fff}
 #main-image{max-height:80%;width:auto;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 #top,#bottom,#left,#right{background:#2c3e50;position:fixed}
