@@ -466,8 +466,15 @@ function changeImage() {
 
     // reset the clarity value and hide the image
     currClarityVal = 100;
-    mainImage.attr("src", currImagePath);
-    mainImage.css("opacity", 0);
+
+    // wait for the image to be fully loaded before showing
+    var img = new Image();
+    img.onload = function () {
+        mainImage.attr("src", currImagePath);
+        mainImage.css("opacity", 0);
+    };
+
+    img.src = currImagePath;
 }
 
 function setBorderColor() {
