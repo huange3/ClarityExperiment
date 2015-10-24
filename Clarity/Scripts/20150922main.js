@@ -505,6 +505,7 @@ function loadData() {
 
             if (dataLogAll["error"] != null) {
                 raiseNotify(dataLogAll["error"]);
+                loadingLB.hide();
                 return;
             }
             
