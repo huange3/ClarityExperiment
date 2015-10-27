@@ -83,6 +83,7 @@ namespace Clarity.Controllers
             JObject summaryObj = null;
             JArray trials = null;
             JArray components = null;
+            JArray clicks = null;
             StreamWriter writer = null;
 
             try
@@ -126,17 +127,24 @@ namespace Clarity.Controllers
                     // now for the actual trials
                     for (var i = 0; i < trials.Count; i++)
                     {
-                        if (i == 0)
-                        {
-                            fileBody += "Clarity Punish\tButton A Count\tButton A Rate\tButton N Count\tButton N Rate\n";
-                        }
+                        fileBody += "Clarity Punish\tButton A Count\tButton A Rate\tButton N Count\tButton N Rate\n";
 
                         fileBody += trials[i]["clarityPunish"] + "\t";
                         fileBody += trials[i]["buttonACnt"] + "\t";
                         fileBody += trials[i]["buttonARate"] + "\t";
                         fileBody += trials[i]["buttonNCnt"] + "\t";
                         fileBody += trials[i]["buttonNRate"] + "\t";
-                        fileBody += "\n";
+                        fileBody += "\n\n";
+                        fileBody += "Button\tTime\tClarity\n";
+
+                        clicks = (JArray)trials[i]["clickLog"];
+
+                        for (var j = 0; j < clicks.Count; j++)
+                        {
+                            fileBody += clicks[j]["button"] + "\t" + clicks[j]["time"] + "\t" + clicks[j]["clarity"] + "\n";
+                        }
+
+                        fileBody += "\n\n";
                     }
 
                     // write to App_Data

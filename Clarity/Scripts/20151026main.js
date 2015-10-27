@@ -34,6 +34,7 @@ var blackOut = $("#black-out");
 var settingsObj = null;
 var responseObj = null;
 var trials = [];
+var clickLog = [];
 var trialComps = [];
 var imageList = [];
 var dataLog = {
@@ -66,13 +67,15 @@ var style = {
     "filter": "blur(" + currClarityVal + "px)"
 };
 
+var watch = new clsStopwatch();
+
 // constants
 const componentsCnt = 6;
 
 // BEGIN - Event handling of DOM elements ========================
 
 settingsBtn.click(function () {
-    $.when(loadSettings()).then(function() {
+    $.when(loadSettings()).then(function () {
         mainOptions.hide();
         settings.toggleClass("show");
     });
@@ -100,13 +103,13 @@ startExpBtn.click(function () {
 
     $.when(loadSettings()).then(function () {
         loadImages();
-    }).then(function(){
+    }).then(function () {
         if (setupTrials()) {
-            loadingLB.hide();           
+            loadingLB.hide();
             instructions.toggleClass("show");
         }
     });
-    
+
 });
 
 startTrialBtn.click(function () {
@@ -131,17 +134,14 @@ backBtn.click(function () {
 
 $(document).keyup(function (e) {
     if (isTrial) {
-        if (e.which == 65) {
-            buttonACnt++;
-            buttonCountLB.text("Button A Count: " + buttonACnt);
-            buttonIntervalCnt++;
+        if (e.which == 65) {           
             increaseClarity();
+            logButtonACount();
         }
 
-        if (e.which == 78) {
-            buttonNCnt++;
-            buttonNCountLB.text("Button N Count: " + buttonNCnt);
+        if (e.which == 78) {            
             changeImage();
+            logButtonNCount();
         }
     }
 });
@@ -151,7 +151,7 @@ $(document).keyup(function (e) {
 // BEGIN - Functions ===========================================
 
 function loadSettings() {
-   return $.get("../Settings/Load", function (data) {
+    return $.get("../Settings/Load", function (data) {
         if (data != null) settingsObj = data;
 
         if (settingsObj["error"] != null) {
@@ -165,14 +165,29 @@ function loadSettings() {
 }
 
 function loadImages() {
-   return $.get("../Images/Load", "catID=" + categoryID, function (data) {
+    return $.get("../Images/Load", "catID=" + categoryID, function (data) {
         if (data["error"] != null) {
             raiseNotify(data["error"]);
         } else {
             imageList = data;
+
+            //console.log("preloading images");
+            preloadImages(imageList);
+            //console.log("done preloading");
         }
-        console.log(imageList);
+        //console.log(imageList);
     });
+}
+
+function preloadImages(imageArray, index) {
+    index = index || 0;
+    if (imageArray && imageArray.length > index) {
+        var img = new Image();
+        img.onload = function () {
+            preloadImages(imageArray, index + 1);
+        }
+        img.src = imageArray[index];
+    }
 }
 
 function mapSettings() {
@@ -278,16 +293,16 @@ function saveSettings() {
 
     return $.post("../Settings/Save", currJSON, function (data) {
         // delay for user experience
-        setTimeout(function () {          
-                     
-            if (data["error"] != null) {              
+        setTimeout(function () {
+
+            if (data["error"] != null) {
                 raiseNotify(data["error"]);
             } else {
                 raiseNotify(data["success"]);
             }
 
             loadingLB.hide();
-        }, 1000);     
+        }, 1000);
     });
 }
 
@@ -366,6 +381,7 @@ function runTrial() {
         currObj = trials.pop();
         clarityPunishVal = currObj["clarityPunish"];
         currColorVal = currObj["color"];
+        clickLog.splice(0, clickLog.length);
 
         currClarityVal = 100;
         buttonACnt = 0;
@@ -382,17 +398,21 @@ function runTrial() {
 
         timer = setInterval(function () {
             timeRemaining--;
+            watch.start();
 
             if (timeRemaining <= 0) {
+                watch.stop();
+                watch.reset();
+
                 clearInterval(timer);
                 recordData();
-
+                
                 blackOut.show();
 
-                setTimeout(function(){
+                setTimeout(function () {
                     blackOut.hide();
                     runTrial();
-                },5000);
+                }, 5000);
             }
 
             if (buttonACnt > 0) {
@@ -414,18 +434,23 @@ function runTrial() {
         isTrial = false;
         trial.hide();
         border.hide();
-        saveData();       
+        saveData();
         console.log(JSON.stringify(dataLog));
-    }  
+    }
 }
 
 function recordData() {
+    //console.log(clickLog);
+
+    var clickArray = clickLog.slice();
+
     dataLog["trials"].push({
-            "clarityPunish": clarityPunishVal,
-            "buttonACnt": buttonACnt,
-            "buttonARate": buttonARate,
-            "buttonNCnt": buttonNCnt,
-            "buttonNRate": buttonNRate
+        "clarityPunish": clarityPunishVal,
+        "buttonACnt": buttonACnt,
+        "buttonARate": buttonARate,
+        "buttonNCnt": buttonNCnt,
+        "buttonNRate": buttonNRate,
+        "clickLog": clickArray
     });
 }
 
@@ -441,6 +466,7 @@ function increaseClarity() {
 }
 
 function decreaseClarity() {
+    var currTime = (watch.time() / 1000).toFixed(3);
     currClarityVal += (clarityPunishVal * 100);
 
     if (currClarityVal >= 100) {
@@ -451,6 +477,8 @@ function decreaseClarity() {
     style["-webkit-filter"] = "blur(" + currClarityVal + "px)";
     style["filter"] = "blur(" + currClarityVal + "px)";
     mainImage.css(style);
+
+    clickLog.push({ "time": currTime, "clarity": 100 - currClarityVal, "button": "P" }); // subtract from 100 to get clarity "percentage"
 }
 
 function changeImage() {
@@ -467,14 +495,8 @@ function changeImage() {
     // reset the clarity value and hide the image
     currClarityVal = 100;
 
-    // wait for the image to be fully loaded before showing
-    var img = new Image();
-    img.onload = function () {
-        mainImage.attr("src", currImagePath);
-        mainImage.css("opacity", 0);
-    };
-
-    img.src = currImagePath;
+    mainImage.attr("src", currImagePath);
+    mainImage.css("opacity", 0);
 }
 
 function setBorderColor() {
@@ -489,10 +511,10 @@ function saveData() {
 
     return $.post("../Data/Save", currJSON, function (data) {
         setTimeout(function () {
-            
+
             if (data != null) raiseNotify(data + "<p>Experiment complete! Thank you for participating!<p>");
             loadingLB.hide();
-        }, 1000);      
+        }, 1000);
     });
 }
 
@@ -500,7 +522,7 @@ function loadData() {
     loadingLB.show();
 
     return $.get("../Data/Load", function (data) {
-        setTimeout(function () {          
+        setTimeout(function () {
             dataLogAll = data;
 
             if (dataLogAll["error"] != null) {
@@ -508,10 +530,10 @@ function loadData() {
                 loadingLB.hide();
                 return;
             }
-            
+
             mapData();
             loadingLB.hide();
-        }, 1000);        
+        }, 1000);
     });
 }
 
@@ -544,7 +566,26 @@ function randomString(length) {
 }
 
 function downloadLink(name, type) {
-    $.get("../Data/Download", {"name":name, "type":type});
+    $.get("../Data/Download", { "name": name, "type": type });
 }
 
-// END - Functions ===========================================
+function logButtonACount() {
+    var currTime = (watch.time() / 1000).toFixed(3);
+
+    buttonACnt++;
+    buttonIntervalCnt++;
+
+    buttonCountLB.text("Button A Count: " + buttonACnt);
+
+    clickLog.push({ "time": currTime, "clarity": 100 - currClarityVal, "button": "A"}); // subtract from 100 to get clarity "percentage"
+}
+
+function logButtonNCount() {
+    var currTime = (watch.time() / 1000).toFixed(3);
+
+    buttonNCnt++;
+
+    buttonNCountLB.text("Button N Count: " + buttonNCnt);
+
+    clickLog.push({ "time": currTime, "clarity": 100 - currClarityVal, "button": "N" }); // subtract from 100 to get clarity "percentage"
+}
