@@ -28,8 +28,9 @@ namespace Clarity.Controllers
             try
             {
                 info = new DirectoryInfo(filePath);
-                // just get the text files and order by creation date
-                files = info.GetFiles("*.txt").OrderByDescending(f => f.CreationTime).ToArray();
+
+                // just get the text and csv files and order by creation date
+                files = info.GetFiles().Where(f => (f.Extension == ".txt" || f.Extension == ".csv")).OrderByDescending(f => f.CreationTime).ToArray();
 
                 if (files.Length <= 0)
                 {
@@ -109,17 +110,17 @@ namespace Clarity.Controllers
 
                     // start writing/formatting our file body
                     // begin with the summary section
-                    fileBody += "Date\t" + DateTime.Today.ToString("MM-dd-yyyy") + "\n";
-                    fileBody += "Participant ID\t" + summaryObj["participantID"] + "\n";
-                    fileBody += "Category ID\t" + summaryObj["categoryID"] + "\n";
-                    fileBody += "Clarity Reward\t" + summaryObj["clarityReward"] + "\n";
-                    fileBody += "Trials per Component\t" + summaryObj["numTrials"] + "\n";
-                    fileBody += "Trial Duration\t" + summaryObj["trialDuration"] + "\n";
-                    fileBody += "Components\t";
+                    fileBody += "Date," + DateTime.Today.ToString("MM-dd-yyyy") + "\n";
+                    fileBody += "Participant ID," + summaryObj["participantID"] + "\n";
+                    fileBody += "Category ID," + summaryObj["categoryID"] + "\n";
+                    fileBody += "Clarity Reward," + summaryObj["clarityReward"] + "\n";
+                    fileBody += "Trials per Component," + summaryObj["numTrials"] + "\n";
+                    fileBody += "Trial Duration," + summaryObj["trialDuration"] + "\n";
+                    fileBody += "Components";
 
                     for (var i = 0; i < components.Count; i++)
                     {
-                        fileBody += components[i].ToString() + "\t";
+                        fileBody += "," + components[i].ToString();
                     }
 
                     fileBody += "\n\n";
@@ -127,28 +128,26 @@ namespace Clarity.Controllers
                     // now for the actual trials
                     for (var i = 0; i < trials.Count; i++)
                     {
-                        fileBody += "Clarity Punish\tButton A Count\tButton A Rate\tButton N Count\tButton N Rate\n";
+                        fileBody += "Clarity Punish,Button A Count,Button A Rate\n";
 
-                        fileBody += trials[i]["clarityPunish"] + "\t";
-                        fileBody += trials[i]["buttonACnt"] + "\t";
-                        fileBody += trials[i]["buttonARate"] + "\t";
-                        fileBody += trials[i]["buttonNCnt"] + "\t";
-                        fileBody += trials[i]["buttonNRate"] + "\t";
+                        fileBody += trials[i]["clarityPunish"] + ",";
+                        fileBody += trials[i]["buttonACnt"] + ",";
+                        fileBody += trials[i]["buttonARate"];
                         fileBody += "\n\n";
-                        fileBody += "Button\tTime\tClarity\n";
+                        fileBody += "Button,Time,Clarity\n";
 
                         clicks = (JArray)trials[i]["clickLog"];
 
                         for (var j = 0; j < clicks.Count; j++)
                         {
-                            fileBody += clicks[j]["button"] + "\t" + clicks[j]["time"] + "\t" + clicks[j]["clarity"] + "\n";
+                            fileBody += clicks[j]["button"] + "," + clicks[j]["time"] + "," + clicks[j]["clarity"] + "\n";
                         }
 
                         fileBody += "\n\n";
                     }
 
                     // write to App_Data
-                    fileName = Server.MapPath(Constants.filePathData) + "/" + DateTime.Today.ToString("yyyyMMdd") + "-" + currID + ".txt";
+                    fileName = Server.MapPath(Constants.filePathData) + "/" + DateTime.Today.ToString("yyyyMMdd") + "-" + currID + ".csv";
                     using(writer = new StreamWriter(fileName))
                     {
                         writer.WriteLine(fileBody);

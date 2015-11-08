@@ -139,10 +139,11 @@ $(document).keyup(function (e) {
             logButtonACount();
         }
 
-        if (e.which == 78) {            
-            changeImage();
-            logButtonNCount();
-        }
+        //20151108 removed the 'N' key
+        //if (e.which == 78) {            
+        //    changeImage();
+        //    logButtonNCount();
+        //}
     }
 });
 
