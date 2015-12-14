@@ -493,11 +493,11 @@ function changeImage() {
 
     imageList.splice(currIndex, 1);
 
-    // reset the clarity value and hide the image
-    currClarityVal = 100;
+    // 12/14/2015 show image at start
+    currClarityVal = 0;
 
     mainImage.attr("src", currImagePath);
-    mainImage.css("opacity", 0);
+    mainImage.css("opacity", 1);
 }
 
 function setBorderColor() {
